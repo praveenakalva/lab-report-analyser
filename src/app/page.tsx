@@ -1,7 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { UploadCloud, Activity, HeartPulse, CheckCircle2, AlertTriangle, FileText, Loader2, History, User, Calendar, Stethoscope } from "lucide-react";
+import dynamic from "next/dynamic";
+import { UploadCloud, Activity, HeartPulse, CheckCircle2, AlertTriangle, FileText, Loader2, History, User, Calendar, Stethoscope, Download } from "lucide-react";
+import { ReportPDF } from "@/components/ReportPDF";
+import { TrendGraph } from "@/components/TrendGraph";
+import { ComparisonTable } from "@/components/ComparisonTable";
+import { ComprehensiveResults } from "@/components/ComprehensiveResults";
+import { Header } from "@/components/Header";
+
+const PDFDownloadLink = dynamic(
+  () => import("@react-pdf/renderer").then((mod) => mod.PDFDownloadLink),
+  { ssr: false, loading: () => <span className="text-sm text-blue-500 flex items-center gap-1 opacity-50"><Download className="w-4 h-4" /> Loading PDF...</span> }
+);
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
@@ -47,6 +58,16 @@ export default function Home() {
     formData.append("file", file);
     formData.append("language", language);
 
+    // Send the most recent previous report (if any) for AI comparison
+    if (history.length > 0) {
+      const prev = history[0]; // Assuming the last uploaded report is the baseline
+      const prevData = {
+        date: prev.patientDetails?.sample_date || prev.createdAt,
+        biomarkers: prev.biomarkers
+      };
+      formData.append("previousData", JSON.stringify(prevData));
+    }
+
     try {
       const res = await fetch("/api/upload", {
         method: "POST",
@@ -80,17 +101,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="px-6 py-4 border-b bg-background/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2 text-primary font-semibold text-xl">
-            <HeartPulse className="w-6 h-6 text-blue-500" />
-            <span>Lab Report Insight</span>
-          </div>
-          <nav className="flex items-center gap-4 text-sm font-medium">
-            <button onClick={() => setReport(null)} className="hover:text-primary transition-colors">Dashboard</button>
-          </nav>
-        </div>
-      </header>
+      <Header />
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-6 flex flex-col md:flex-row gap-8">
         <div className="flex-1">
@@ -150,9 +161,20 @@ export default function Home() {
             </div>
           ) : (
             <section className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-4">
                 <h2 className="text-2xl font-bold">Analysis Results</h2>
-                <button onClick={() => { setReport(null); setFile(null); }} className="text-sm text-blue-500 hover:underline font-medium">Upload Another</button>
+                <div className="flex items-center gap-4">
+                  <PDFDownloadLink document={<ReportPDF report={report} />} fileName="lab-report-analysis.pdf">
+                    {/* @ts-ignore */}
+                    {({ loading }: { loading: boolean }) => (
+                      <button disabled={loading} className="flex items-center gap-2 text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 px-3 py-1.5 rounded-lg transition-colors font-medium">
+                        <Download className="w-4 h-4" />
+                        {loading ? "Generating PDF..." : "Download PDF"}
+                      </button>
+                    )}
+                  </PDFDownloadLink>
+                  <button onClick={() => { setReport(null); setFile(null); }} className="text-sm text-blue-500 hover:underline font-medium">Upload Another</button>
+                </div>
               </div>
 
               {report.criticalWarnings && (
@@ -255,8 +277,22 @@ export default function Home() {
                 </div>
               </div>
               
+              {/* Previous vs Current Comparison */}
+              {(() => {
+                const prevReport = history.find(h => h.id !== report.id && h.patientDetails?.name === report.patientDetails?.name);
+                return prevReport ? <ComparisonTable currentReport={report} previousReport={prevReport} /> : null;
+              })()}
+
+              {/* Longitudinal Trend Graph */}
+              {(() => {
+                const patientReports = history.filter(h => h.patientDetails?.name === report.patientDetails?.name);
+                // Include current report if it's not already in history (it should be due to saveToHistory)
+                const allReports = patientReports.some(h => h.id === report.id) ? patientReports : [report, ...patientReports];
+                return allReports.length > 1 ? <TrendGraph history={allReports} /> : null;
+              })()}
+              
               {/* Executive Summary */}
-              <div className="border rounded-2xl p-6 md:p-8 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 shadow-sm border-blue-100 dark:border-blue-900">
+              <div className="border rounded-2xl p-6 md:p-8 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 shadow-sm border-blue-100 dark:border-blue-900 mt-6">
                 <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
                   <FileText className="w-5 h-5 text-blue-500" />
                   What You Need to Know
@@ -289,8 +325,52 @@ export default function Home() {
                   </>
                 )}
 
-                <h4 className="font-semibold mt-4 mb-2">Questions for your Doctor</h4>
-                <p className="text-foreground/80 text-sm whitespace-pre-line mb-6">{report.doctorQuestions}</p>
+                {report.diseaseCauses && report.diseaseCauses.length > 0 && (
+                  <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/50">
+                    <h4 className="font-semibold mb-3 flex items-center gap-2 text-red-600 dark:text-red-400">
+                      <AlertTriangle className="w-4 h-4" /> Detected Conditions & Potential Causes
+                    </h4>
+                    <div className="space-y-4">
+                      {report.diseaseCauses.map((dc: any, idx: number) => (
+                        <div key={idx} className="space-y-2 pb-2">
+                          <p className="font-semibold text-base text-foreground/90">{dc.disease}</p>
+                          {dc.description && (
+                            <p className="text-sm text-foreground/80 leading-relaxed bg-red-100/30 dark:bg-red-900/10 p-3 rounded-lg">
+                              {dc.description}
+                            </p>
+                          )}
+                          <div>
+                            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1 mt-2">Potential Causes:</p>
+                            <ul className="list-disc list-inside text-foreground/80 text-sm">
+                              {dc.causes.map((cause: string, cIdx: number) => (
+                                <li key={cIdx}>{cause}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {report.doctorQuestions && (
+                  <>
+                    <h4 className="font-semibold mt-4 mb-2">Questions for your Doctor</h4>
+                    {Array.isArray(report.doctorQuestions) ? (
+                      <ul className="list-decimal list-inside text-foreground/80 text-sm mb-6 space-y-2">
+                        {report.doctorQuestions.map((q: string, i: number) => (
+                          <li key={i} className="leading-relaxed pl-1">{q}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div className="text-foreground/80 text-sm mb-6 space-y-2">
+                        {report.doctorQuestions.split('\n').filter((q: string) => q.trim() !== '').map((q: string, i: number) => (
+                          <p key={i} className="leading-relaxed">{q}</p>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
 
                 <div className="mt-6 pt-6 border-t border-blue-200 dark:border-blue-900/50">
                   <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">
@@ -298,6 +378,9 @@ export default function Home() {
                   </p>
                 </div>
               </div>
+
+              {/* Comprehensive Systematic Results Table */}
+              <ComprehensiveResults biomarkers={report.biomarkers} />
             </section>
           )}
         </div>
