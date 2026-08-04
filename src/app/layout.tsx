@@ -8,7 +8,7 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "MedHub | Understand Your Health",
+  title: "Lab Report Analyser | Understand Your Health",
   description: "AI-powered laboratory report analysis. Get simple explanations, track trends, and share insights easily.",
 };
 
