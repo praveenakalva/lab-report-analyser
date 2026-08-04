@@ -140,7 +140,7 @@ export const ReportPDF = ({ report }: { report: any }) => (
   <Document>
     <Page size="A4" style={styles.page}>
       <View style={styles.header}>
-        <Text style={styles.title}>Lab Report Insight</Text>
+        <Text style={styles.title}>MedHub</Text>
         <Text style={styles.subtitle}>Generated on {new Date().toLocaleDateString()}</Text>
       </View>
 

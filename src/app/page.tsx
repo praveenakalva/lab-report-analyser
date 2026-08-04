@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { UploadCloud, Activity, HeartPulse, CheckCircle2, AlertTriangle, FileText, Loader2, History, User, Calendar, Stethoscope, Download } from "lucide-react";
+import { UploadCloud, Activity, HeartPulse, CheckCircle2, Info, FileText, Loader2, History, User, Calendar, Stethoscope, Download, Coffee, Leaf, UserPlus } from "lucide-react";
 import { ReportPDF } from "@/components/ReportPDF";
 import { TrendGraph } from "@/components/TrendGraph";
 import { ComparisonTable } from "@/components/ComparisonTable";
@@ -178,10 +178,10 @@ export default function Home() {
               </div>
 
               {report.criticalWarnings && (
-                <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-800 dark:text-red-200 rounded-xl p-5 shadow-sm flex gap-3 animate-in fade-in zoom-in duration-500">
-                  <AlertTriangle className="w-6 h-6 flex-shrink-0 text-red-600 dark:text-red-400 mt-1" />
+                <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-amber-800 dark:text-amber-200 rounded-xl p-5 shadow-sm flex gap-3 animate-in fade-in zoom-in duration-500">
+                  <Info className="w-6 h-6 flex-shrink-0 text-amber-600 dark:text-amber-400 mt-1" />
                   <div>
-                    <h3 className="font-bold text-lg mb-1">CRITICAL WARNING</h3>
+                    <h3 className="font-bold text-lg mb-1">IMPORTANT NOTICE</h3>
                     <p className="font-medium">{report.criticalWarnings}</p>
                   </div>
                 </div>
@@ -225,31 +225,31 @@ export default function Home() {
                 <div className="col-span-1 border rounded-2xl p-6 bg-card shadow-sm relative overflow-hidden">
                   <div className={`absolute top-0 right-0 w-32 h-32 rounded-bl-[100px] -z-10 ${
                     report.status === "Healthy" ? "bg-green-500/10" : 
-                    report.status === "Needs Attention" ? "bg-yellow-500/10" : "bg-red-500/10"
+                    report.status === "Needs Attention" ? "bg-yellow-500/10" : "bg-orange-500/10"
                   }`}></div>
                   <div className="flex items-center gap-3 mb-4">
-                    {report.status === "Healthy" ? <CheckCircle2 className="w-6 h-6 text-green-500" /> : <AlertTriangle className={`w-6 h-6 ${report.status === "Needs Attention" ? "text-yellow-500" : "text-red-500"}`} />}
+                    {report.status === "Healthy" && <CheckCircle2 className="w-6 h-6 text-green-500" />}
                     <h3 className="font-semibold text-lg">Overall Status</h3>
                   </div>
                   <p className={`text-3xl font-bold mb-2 ${
                     report.status === "Healthy" ? "text-green-600 dark:text-green-500" : 
-                    report.status === "Needs Attention" ? "text-yellow-600 dark:text-yellow-500" : "text-red-600 dark:text-red-500"
+                    report.status === "Needs Attention" ? "text-yellow-600 dark:text-yellow-500" : "text-orange-600 dark:text-orange-500"
                   }`}>{report.status}</p>
                 </div>
 
                 {/* Critical Findings */}
                 <div className="col-span-1 border rounded-2xl p-6 bg-card shadow-sm">
                   <div className="flex items-center gap-3 mb-4">
-                    <Activity className="w-6 h-6 text-red-500" />
+                    <Activity className="w-6 h-6 text-orange-500" />
                     <h3 className="font-semibold text-lg">Abnormalities</h3>
                   </div>
                   <ul className="space-y-3 max-h-32 overflow-y-auto pr-2">
                     {report.biomarkers?.filter((b: any) => b.status !== "Normal").map((b: any, i: number) => (
                       <li key={i} className={`flex items-center justify-between p-3 rounded-lg border ${
-                        b.status === "Borderline" ? "bg-yellow-50 dark:bg-yellow-950/30 border-yellow-100 dark:border-yellow-900/50" : "bg-red-50 dark:bg-red-950/30 border-red-100 dark:border-red-900/50"
+                        b.status === "Borderline" ? "bg-yellow-50 dark:bg-yellow-950/30 border-yellow-100 dark:border-yellow-900/50" : "bg-orange-50 dark:bg-orange-950/30 border-orange-100 dark:border-orange-900/50"
                       }`}>
                         <span className="font-medium text-sm">{b.testName}</span>
-                        <span className={`font-bold text-sm ${b.status === "Borderline" ? "text-yellow-600 dark:text-yellow-400" : "text-red-600 dark:text-red-400"}`}>
+                        <span className={`font-bold text-sm ${b.status === "Borderline" ? "text-yellow-600 dark:text-yellow-400" : "text-orange-600 dark:text-orange-400"}`}>
                           {b.value} {b.unit} <span className="text-xs opacity-70">({b.status})</span>
                         </span>
                       </li>
@@ -306,7 +306,7 @@ export default function Home() {
                 {report.precautions && report.precautions.length > 0 && (
                   <>
                     <h4 className="font-semibold mt-4 mb-2 flex items-center gap-2 text-orange-600 dark:text-orange-400">
-                      <AlertTriangle className="w-4 h-4" /> Recommended Precautions
+                      <Info className="w-4 h-4" /> Recommended Precautions
                     </h4>
                     <ul className="list-disc list-inside text-foreground/80 text-sm mb-6 space-y-1">
                       {report.precautions.map((p: string, i: number) => <li key={i}>{p}</li>)}
@@ -326,16 +326,16 @@ export default function Home() {
                 )}
 
                 {report.diseaseCauses && report.diseaseCauses.length > 0 && (
-                  <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/50">
-                    <h4 className="font-semibold mb-3 flex items-center gap-2 text-red-600 dark:text-red-400">
-                      <AlertTriangle className="w-4 h-4" /> Detected Conditions & Potential Causes
+                  <div className="mb-6 p-4 rounded-xl bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/50">
+                    <h4 className="font-semibold mb-3 flex items-center gap-2 text-orange-600 dark:text-orange-400">
+                      <Info className="w-4 h-4" /> Detected Conditions & Potential Causes
                     </h4>
                     <div className="space-y-4">
                       {report.diseaseCauses.map((dc: any, idx: number) => (
                         <div key={idx} className="space-y-2 pb-2">
                           <p className="font-semibold text-base text-foreground/90">{dc.disease}</p>
                           {dc.description && (
-                            <p className="text-sm text-foreground/80 leading-relaxed bg-red-100/30 dark:bg-red-900/10 p-3 rounded-lg">
+                            <p className="text-sm text-foreground/80 leading-relaxed bg-orange-100/30 dark:bg-orange-900/10 p-3 rounded-lg">
                               {dc.description}
                             </p>
                           )}
@@ -350,6 +350,80 @@ export default function Home() {
                         </div>
                       ))}
                     </div>
+                  </div>
+                )}
+                
+                {report.recommendedDoctors && report.recommendedDoctors.length > 0 && (
+                  <div className="mb-6 p-4 rounded-xl bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800">
+                    <h4 className="font-semibold mb-3 flex items-center gap-2 text-blue-700 dark:text-blue-400">
+                      <UserPlus className="w-5 h-5" /> Recommended Specialized Doctors (Hyderabad)
+                    </h4>
+                    <div className="space-y-6">
+                      {Array.from(new Set(report.recommendedDoctors.map((d: any) => d.reason))).map((reason: any, rIdx: number) => (
+                        <div key={rIdx} className="space-y-3">
+                          <h5 className="font-semibold text-blue-800 dark:text-blue-300 border-b border-blue-200 dark:border-blue-800/50 pb-2">
+                            Related Condition: <span className="font-medium text-blue-600 dark:text-blue-400">{reason}</span>
+                          </h5>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {report.recommendedDoctors.filter((d: any) => d.reason === reason).map((doc: any, idx: number) => (
+                              <div key={idx} className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm border border-blue-100 dark:border-blue-900/50 hover:shadow-md transition-shadow">
+                                <p className="font-bold text-lg text-foreground">{doc.doctor_name}</p>
+                                <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">{doc.specialization}</p>
+                                <p className="text-sm text-muted-foreground mt-1">{doc.hospital}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {(report.diet?.dos?.length > 0 || report.diet?.donts?.length > 0) && (
+                  <div className="mb-6 p-4 rounded-xl bg-emerald-50/50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-800">
+                    <h4 className="font-semibold mb-3 flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
+                      <Coffee className="w-5 h-5" /> Food & Diet (Do's and Don'ts)
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {report.diet.dos && report.diet.dos.length > 0 && (
+                        <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-emerald-100 dark:border-emerald-900/50">
+                          <h5 className="font-semibold text-emerald-700 dark:text-emerald-400 mb-2">Do's:</h5>
+                          <ul className="list-disc list-inside text-sm space-y-1 text-foreground/80">
+                            {report.diet.dos.map((d: string, i: number) => <li key={i}>{d}</li>)}
+                          </ul>
+                        </div>
+                      )}
+                      {report.diet.donts && report.diet.donts.length > 0 && (
+                        <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-red-100 dark:border-red-900/50">
+                          <h5 className="font-semibold text-red-600 dark:text-red-400 mb-2">Don'ts:</h5>
+                          <ul className="list-disc list-inside text-sm space-y-1 text-foreground/80">
+                            {report.diet.donts.map((d: string, i: number) => <li key={i}>{d}</li>)}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {report.homeRemedies && report.homeRemedies.length > 0 && (
+                  <div className="mb-6 p-4 rounded-xl bg-teal-50/50 dark:bg-teal-900/10 border border-teal-100 dark:border-teal-800">
+                    <h4 className="font-semibold mb-3 flex items-center gap-2 text-teal-700 dark:text-teal-400">
+                      <Leaf className="w-5 h-5" /> Home Remedies (Without Side-effects)
+                    </h4>
+                    <ul className="list-disc list-inside text-foreground/80 text-sm space-y-1 bg-white dark:bg-slate-800 p-3 rounded-lg border border-teal-100 dark:border-teal-900/50">
+                      {report.homeRemedies.map((r: string, i: number) => <li key={i}>{r}</li>)}
+                    </ul>
+                  </div>
+                )}
+
+                {report.exercises && report.exercises.length > 0 && (
+                  <div className="mb-6 p-4 rounded-xl bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800">
+                    <h4 className="font-semibold mb-3 flex items-center gap-2 text-indigo-700 dark:text-indigo-400">
+                      <Activity className="w-5 h-5" /> Recommended Exercises / Poses
+                    </h4>
+                    <ul className="list-disc list-inside text-foreground/80 text-sm space-y-1 bg-white dark:bg-slate-800 p-3 rounded-lg border border-indigo-100 dark:border-indigo-900/50">
+                      {report.exercises.map((e: string, i: number) => <li key={i}>{e}</li>)}
+                    </ul>
                   </div>
                 )}
 
@@ -373,9 +447,14 @@ export default function Home() {
                 )}
 
                 <div className="mt-6 pt-6 border-t border-blue-200 dark:border-blue-900/50">
-                  <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">
-                    Disclaimer: Always consult your doctor if you have any doubts. Seek immediate medical care if there are critical results. Do not use this as a substitute for professional medical advice.
-                  </p>
+                  <div className="bg-slate-100 dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <h4 className="font-bold text-sm text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-2">
+                      <Info className="w-4 h-4" /> Medical Disclaimer
+                    </h4>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                      This analysis is generated by AI and is meant for informational purposes only. It is <strong>not</strong> a substitute for professional medical advice, diagnosis, or treatment. The recommended doctors, diets, and remedies are generalized suggestions and should not replace personalized care. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition. Never disregard professional medical advice or delay in seeking it because of something you have read here.
+                    </p>
+                  </div>
                 </div>
               </div>
 

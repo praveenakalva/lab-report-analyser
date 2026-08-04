@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Header } from "@/components/Header";
 import { UploadCloud, Activity, Loader2, FileText, ArrowRight, TrendingUp, AlertTriangle } from "lucide-react";
 import { ComparativeChart } from "@/components/ComparativeChart";
+import { DetailedComparisonTable } from "@/components/DetailedComparisonTable";
 
 export default function ComparePage() {
   const [file1, setFile1] = useState<File | null>(null);
@@ -145,6 +146,9 @@ export default function ComparePage() {
 
             {/* Visual Chart */}
             <ComparativeChart report1={comparison.report1_biomarkers} report2={comparison.report2_biomarkers} report3={comparison.report3_biomarkers} />
+
+            {/* Detailed Table */}
+            <DetailedComparisonTable report1={comparison.report1_biomarkers} report2={comparison.report2_biomarkers} report3={comparison.report3_biomarkers} />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
               {/* Key Changes */}

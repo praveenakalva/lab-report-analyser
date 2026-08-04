@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     const filePart1 = await processFile(file1);
     const filePart2 = await processFile(file2);
 
-    const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite" }, { apiVersion: "v1alpha" });
     
     const hasThreeFiles = !!file3;
     const promptIntro = hasThreeFiles
@@ -46,6 +46,7 @@ export async function POST(req: NextRequest) {
       3. Focus entirely on the DIFFERENCES and TRAJECTORY. Has the patient improved? Gotten worse? Remained stable?
       4. EVERYDAY TERMINOLOGY: Normalize biomarker names to everyday, common language that non-medical people use (e.g., use "Red Blood Cells" instead of "Erythrocytes", "Blood Sugar" instead of "Glucose" or "FBS"). Do NOT use complex latin or medical names if a simple common name exists.
       5. Group each biomarker into a standard simple category (e.g., "Blood Count", "Cholesterol", "Liver Health", "Kidney Health", "Thyroid", "Vitamins", "Others"). Add this as the "category" field.
+      6. EXTRACT ALL DATA: You MUST extract and include ALL biomarkers found in the lab reports into their respective arrays (report1_biomarkers, report2_biomarkers, etc.). Do not just summarize or cherry-pick. Include everything.
       
       Extract the text and return a JSON object in this exact format ONLY (no markdown backticks):
       {

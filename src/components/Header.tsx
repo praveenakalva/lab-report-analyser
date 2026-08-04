@@ -11,7 +11,7 @@ export const Header = () => {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 text-primary font-semibold text-xl hover:opacity-80 transition-opacity">
           <HeartPulse className="w-6 h-6 text-blue-500" />
-          <span>Lab Report Insight</span>
+          <span>MedHub</span>
         </Link>
         <nav className="flex items-center gap-6 text-sm font-medium">
           <Link 
